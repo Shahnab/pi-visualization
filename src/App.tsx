@@ -64,6 +64,10 @@ export default function App() {
     worker.onmessage = (e) => {
       if (e.data.type === 'progress') {
         setCalcProgress(e.data.progress);
+      } else if (e.data.type === 'partial') {
+        // Stream partial pi digits immediately as each milestone completes.
+        // The user sees real digits as computation proceeds.
+        setPiString(e.data.piString);
       } else if (e.data.type === 'complete') {
         setPiString(e.data.piString);
         setCalcTime(performance.now() - startTime);
@@ -137,8 +141,8 @@ export default function App() {
                 <Info size={12} className="shrink-0 mt-0.5" />
                 <p>
                   {digits >= 10000000 
-                    ? "Extreme resolution: This will take several minutes and significant memory." 
-                    : "High resolution may take a few moments to compute."}
+                    ? "Extreme resolution: digits stream in live as computation progresses via WASM/MPFR." 
+                    : "High resolution: first digits appear immediately while computing continues."}
                 </p>
               </div>
             )}
@@ -222,7 +226,7 @@ export default function App() {
               <Activity size={14} />
               <span>Computed Sequence</span>
             </div>
-            <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full">{piString.length.toLocaleString()}</span>
+            <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full">{(piString.includes('.') ? piString.length - 1 : piString.length).toLocaleString()}</span>
           </div>
           <div className="flex-1 overflow-hidden pr-2 text-neutral-400 font-mono text-[10px] leading-relaxed tracking-wider opacity-80">
             {piString ? (
